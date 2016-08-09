@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
+from django.test import TestCase
 
 
-def test_answer():
-    assert 1 == 2
+class ExampleTestCase(TestCase):
+
+    def test_example(self):
+        self.assertEqual(1, 2)
