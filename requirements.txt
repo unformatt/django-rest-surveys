@@ -1,2 +1,3 @@
 Django==1.10
 djangorestframework==3.4.3
+-e git://github.com/danxshap/django-inline-ordering.git@908d9c9f915e7ecf61226bff535afa3bb6657a6d#egg=django-inline-ordering

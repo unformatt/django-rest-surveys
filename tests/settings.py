@@ -15,7 +15,7 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = '.urls'
+ROOT_URLCONF = 'rest_surveys.urls'
 
 if django.VERSION >= (1, 8):
     TEMPLATES = [
@@ -61,5 +61,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'inline_ordering',
     'rest_surveys',
 )
