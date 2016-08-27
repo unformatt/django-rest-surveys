@@ -1,9 +1,16 @@
 from __future__ import unicode_literals
 import django
 
+# Django REST Surveys specific settings:
+REST_SURVEYS = {
+    'SURVEY_MODEL': 'Survey',
+    'SURVEY_RESPONSE_MODEL': 'SurveyResponse',
+    'API_PATH': 'api/',
+}
 
+
+# Generic settings:
 SECRET_KEY = 'psst'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -14,9 +21,7 @@ DATABASES = {
         'PORT': '',
     }
 }
-
 ROOT_URLCONF = 'rest_surveys.urls'
-
 if django.VERSION >= (1, 8):
     TEMPLATES = [
         {
@@ -43,7 +48,6 @@ else:
         'django.core.context_processors.request',
         'django.contrib.messages.context_processors.messages',
     )
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,7 +56,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
