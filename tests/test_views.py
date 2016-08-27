@@ -123,3 +123,42 @@ class SurveyResponseTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # TODO: Handle authentication
+
+    def test_list(self):
+        # Mock a survey response.
+        survey_response = SurveyResponse(
+                question=self.survey_question1,
+                response_option=self.survey_response_option1)
+        survey_response.save()
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # It should return a list of survey responses.
+        serializer = SurveyResponseSerializer([survey_response], many=True)
+        json_event = JSONRenderer().render(serializer.data)
+        self.assertEqual(response.content, json_event)
+
+    def test_list_filter(self):
+        # Mock survey responses.
+        survey_response1 = SurveyResponse(
+                question=self.survey_question1,
+                response_option=self.survey_response_option1)
+        survey_response1.save()
+        survey_response2 = SurveyResponse(
+                question=self.survey_question2,
+                custom_text='I couldn\'t ask for a better mentor.')
+        survey_response2.save()
+
+        url = '{list_url}?question={question}'.format(
+                list_url=self.list_url,
+                question=self.survey_question2.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # It should return a list of survey responses.
+        serializer = SurveyResponseSerializer([survey_response2], many=True)
+        json_event = JSONRenderer().render(serializer.data)
+        self.assertEqual(response.content, json_event)
+
+        # TODO: Limit what you can filter by
