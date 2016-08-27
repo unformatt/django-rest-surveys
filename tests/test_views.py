@@ -122,6 +122,15 @@ class SurveyResponseTests(APITestCase):
         response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_response_option_and_custom_text(self):
+        data = {
+            'question': self.survey_question1.id,
+            'response_option': self.survey_response_option1.id,
+            'custom_text': 'I couldn\'t ask for a better mentor.',
+        }
+        response = self.client.post(self.list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     # TODO: Handle authentication
 
     def test_list(self):

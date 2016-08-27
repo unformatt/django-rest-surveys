@@ -15,9 +15,16 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """
-        Make sure that either `response_option` or `custom_text` are defined.
+        Make sure that either `response_option` or `custom_text` are defined,
+        but not both.
         """
-        if not data.get('response_option') and not data.get('custom_text'):
+        response_option = data.get('response_option')
+        custom_text = data.get('custom_text')
+        if not response_option and not custom_text:
             error = 'Either `response_option` or `custom_text` must be defined.'
+            raise serializers.ValidationError(error) 
+        if response_option and custom_text:
+            error = ('Only one of `response_option` and `custom_text` may'
+                     'be defined.')
             raise serializers.ValidationError(error) 
         return data
