@@ -54,7 +54,7 @@ class SurveyResponseOption(models.Model):
 
 class SurveyQuestionResponseOption(Orderable):
     question = models.ForeignKey('SurveyQuestion')
-    response_option = models.ForeignKey(SurveyResponseOption)
+    response_option = models.ForeignKey('SurveyResponseOption')
 
 
 class AbstractSurveyResponse(models.Model):

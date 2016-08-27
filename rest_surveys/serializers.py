@@ -1,9 +1,17 @@
 from __future__ import unicode_literals
 from django.apps import apps
 from django.conf import settings
+from django_filters.utils import get_all_model_fields
 from rest_framework import serializers
+from rest_surveys.models import (
+    SurveyStep,
+    SurveyQuestion,
+    SurveyResponseOption,
+)
 
 
+Survey = apps.get_model(app_label='rest_surveys',
+                        model_name=settings.REST_SURVEYS['SURVEY_MODEL'])
 SurveyResponse = apps.get_model(
         app_label='rest_surveys',
         model_name=settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
@@ -28,3 +36,37 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
                      'be defined.')
             raise serializers.ValidationError(error) 
         return data
+
+
+class SurveyResponseOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SurveyResponseOption
+
+
+class SurveyQuestionSerializer(serializers.ModelSerializer):
+    surveyresponseoption_set = SurveyResponseOptionSerializer(many=True,
+                                                              read_only=True)
+
+    class Meta:
+        model = SurveyQuestion
+        fields = get_all_model_fields(SurveyQuestion) + [
+                'surveyresponseoption_set']
+
+
+class SurveyStepSerializer(serializers.ModelSerializer):
+    surveyquestion_set = SurveyQuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SurveyStep
+        fields = get_all_model_fields(SurveyStep) + ['surveyquestion_set']
+
+
+class SurveySerializer(serializers.ModelSerializer):
+    # TODO: All rest_surveys users to define reverse relations for their
+    # custom survey models.
+    surveystep_set = SurveyStepSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Survey
+        fields = get_all_model_fields(Survey) + ['surveystep_set']
