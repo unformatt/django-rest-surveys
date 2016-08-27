@@ -162,3 +162,23 @@ class SurveyResponseTests(APITestCase):
         self.assertEqual(response.content, json_event)
 
         # TODO: Limit what you can filter by
+
+    def test_update(self):
+        # Mock a survey response.
+        survey_response = SurveyResponse(
+                question=self.survey_question2,
+                custom_text='I couldn\'t ask for a better mentor.')
+        survey_response.save()
+
+        data = {
+            'question': survey_response.question_id,
+            'custom_text': 'I really couldn\'t ask for a better mentor.',
+        }
+        url = '{list_url}/{id}'.format(list_url=self.list_url,
+                                       id=survey_response.id)
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # It should update the survey response.
+        SurveyResponse.objects.get(id=survey_response.id,
+                                   custom_text=data['custom_text'])

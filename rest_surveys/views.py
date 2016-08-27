@@ -11,7 +11,7 @@ SurveyResponse = apps.get_model(
         model_name=settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
 
 class SurveyResponseViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                            viewsets.GenericViewSet):
+                            mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = SurveyResponse.objects.all()
     serializer_class = SurveyResponseSerializer
     filter_backends = (filters.DjangoFilterBackend,)
