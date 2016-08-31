@@ -45,28 +45,27 @@ class SurveyResponseOptionSerializer(serializers.ModelSerializer):
 
 
 class SurveyQuestionSerializer(serializers.ModelSerializer):
-    surveyresponseoption_set = SurveyResponseOptionSerializer(many=True,
+    response_options = SurveyResponseOptionSerializer(many=True,
                                                               read_only=True)
 
     class Meta:
         model = SurveyQuestion
-        fields = get_all_model_fields(SurveyQuestion) + [
-                'surveyresponseoption_set']
+        fields = get_all_model_fields(SurveyQuestion) + ['response_options']
 
 
 class SurveyStepSerializer(serializers.ModelSerializer):
-    surveyquestion_set = SurveyQuestionSerializer(many=True, read_only=True)
+    questions = SurveyQuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = SurveyStep
-        fields = get_all_model_fields(SurveyStep) + ['surveyquestion_set']
+        fields = get_all_model_fields(SurveyStep) + ['questions']
 
 
 class SurveySerializer(serializers.ModelSerializer):
     # TODO: All rest_surveys users to define reverse relations for their
     # custom survey models.
-    surveystep_set = SurveyStepSerializer(many=True, read_only=True)
+    steps = SurveyStepSerializer(many=True, read_only=True)
 
     class Meta:
         model = Survey
-        fields = get_all_model_fields(Survey) + ['surveystep_set']
+        fields = get_all_model_fields(Survey) + ['steps']

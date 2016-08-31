@@ -26,6 +26,9 @@ class SurveyStep(Orderable):
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
 
+    class Meta:
+        default_related_name = 'steps'
+
 
 class SurveyQuestion(Orderable):
     step = models.ForeignKey('SurveyStep')
@@ -47,9 +50,15 @@ class SurveyQuestion(Orderable):
             blank=True,
             through='SurveyQuestionResponseOption')
 
+    class Meta:
+        default_related_name = 'questions'
+
 
 class SurveyResponseOption(models.Model):
     text = models.TextField()
+
+    class Meta:
+        default_related_name = 'response_options'
 
 
 class SurveyQuestionResponseOption(Orderable):
