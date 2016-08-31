@@ -65,6 +65,9 @@ class SurveyQuestionResponseOption(Orderable):
     question = models.ForeignKey('SurveyQuestion')
     response_option = models.ForeignKey('SurveyResponseOption')
 
+    class Meta:
+        default_related_name = 'question_response_options'
+
 
 class AbstractSurveyResponse(models.Model):
     question = models.ForeignKey('SurveyQuestion')

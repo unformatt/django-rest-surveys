@@ -45,27 +45,53 @@ class SurveyResponseOptionSerializer(serializers.ModelSerializer):
 
 
 class SurveyQuestionSerializer(serializers.ModelSerializer):
-    response_options = SurveyResponseOptionSerializer(many=True,
-                                                              read_only=True)
+    response_options = serializers.SerializerMethodField()
 
     class Meta:
         model = SurveyQuestion
-        fields = get_all_model_fields(SurveyQuestion) + ['response_options']
+        fields = [
+            field for field in get_all_model_fields(SurveyQuestion)
+            if field not in ('inline_ordering_position', 'step')
+        ] + ['response_options']
+
+    def get_response_options(self, obj):
+        question_response_options = obj.question_response_options.order_by(
+                'inline_ordering_position')
+        response_options = [question_response_option.response_option
+                            for question_response_option
+                            in question_response_options]
+        serializer = SurveyResponseOptionSerializer(data=response_options,
+                                                    many=True)
+        serializer.is_valid()
+        return serializer.data
 
 
 class SurveyStepSerializer(serializers.ModelSerializer):
-    questions = SurveyQuestionSerializer(many=True, read_only=True)
+    questions = serializers.SerializerMethodField()
 
     class Meta:
         model = SurveyStep
-        fields = get_all_model_fields(SurveyStep) + ['questions']
+        fields = [
+            field for field in get_all_model_fields(SurveyStep)
+            if field not in ('inline_ordering_position', 'survey')
+        ] + ['questions']
+
+    def get_questions(self, obj):
+        questions = obj.questions.order_by('inline_ordering_position')
+        serializer = SurveyQuestionSerializer(questions, many=True)
+        return serializer.data
 
 
 class SurveySerializer(serializers.ModelSerializer):
     # TODO: All rest_surveys users to define reverse relations for their
     # custom survey models.
-    steps = SurveyStepSerializer(many=True, read_only=True)
+    steps = serializers.SerializerMethodField()
 
     class Meta:
         model = Survey
         fields = get_all_model_fields(Survey) + ['steps']
+
+    def get_steps(self, obj):
+        steps = obj.steps.order_by('inline_ordering_position')
+        serializer = SurveyStepSerializer(steps, many=True)
+        return serializer.data

@@ -44,7 +44,7 @@ class SurveyResponseTests(APITestCase):
         # Survey Questions
         title = 'Did your mentor give you timely online feedback?'
         description = ('For example, they left comments for you on your'
-                       'submissions within 48 hours as expected.')
+                       ' submissions within 48 hours as expected.')
         self.survey_question1 = SurveyQuestion(step=self.survey_step,
                                                title=title,
                                                description=description,
@@ -222,13 +222,15 @@ class SurveyTests(APITestCase):
                                                title=title,
                                                description=description,
                                                is_required=True,
-                                               format=SurveyQuestion.CHOOSE_ONE)
+                                               format=SurveyQuestion.CHOOSE_ONE,
+                                               inline_ordering_position=2)
         self.survey_question1.save()
         title = 'Any additional comments?'
         self.survey_question2 = SurveyQuestion(step=self.survey_step,
                                                title=title,
                                                is_required=True,
-                                               format=SurveyQuestion.OPEN_ENDED)
+                                               format=SurveyQuestion.OPEN_ENDED,
+                                               inline_ordering_position=1)
         self.survey_question2.save()
 
         # Survey Response Options
