@@ -21,6 +21,8 @@ class SurveyResponseViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = SurveyResponseSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = get_all_model_fields(SurveyResponse)
+    #permission_classes = settings.REST_SURVEYS[
+    #       'survey_response_permission_classes']
 
 
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):

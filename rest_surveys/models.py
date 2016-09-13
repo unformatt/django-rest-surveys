@@ -75,10 +75,6 @@ class AbstractSurveyResponse(models.Model):
                                         blank=True)
     custom_text = models.TextField(null=True, blank=True)
 
-    # TODO: use clean() to make sure either `response_option` or
-    # `custom_text` are defined:
-    # http://stackoverflow.com/a/23434418/1658458
-
     class Meta:
         abstract = True
 
