@@ -44,9 +44,9 @@ class SurveyQuestion(Orderable):
     format = models.PositiveSmallIntegerField(
             choices=FORMAT_CHOICES)
     response_options = models.ManyToManyField(
-            'SurveyResponseOption',
+            'rest_surveys.SurveyResponseOption',
             blank=True,
-            through='SurveyQuestionResponseOption')
+            through='rest_surveys.SurveyQuestionResponseOption')
 
 
 class SurveyResponseOption(models.Model):
