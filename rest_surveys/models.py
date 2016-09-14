@@ -28,7 +28,7 @@ class SurveyStep(Orderable):
 
 
 class SurveyQuestion(Orderable):
-    step = models.ForeignKey('SurveyStep', related_name='questions')
+    step = models.ForeignKey(SurveyStep, related_name='questions')
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
     is_required = models.BooleanField()
@@ -53,15 +53,14 @@ class SurveyResponseOption(models.Model):
 
 
 class SurveyQuestionResponseOption(Orderable):
-    question = models.ForeignKey('SurveyQuestion',
+    question = models.ForeignKey(SurveyQuestion,
                                  related_name='question_response_options')
-    response_option = models.ForeignKey('SurveyResponseOption',
-                                        related_name='question_response_options')
-
+    response_option = models.ForeignKey(SurveyResponseOption,
+                                        related_name='question_response_options') 
 
 class AbstractSurveyResponse(models.Model):
-    question = models.ForeignKey('SurveyQuestion')
-    response_option = models.ForeignKey('SurveyResponseOption', null=True,
+    question = models.ForeignKey(SurveyQuestion)
+    response_option = models.ForeignKey(SurveyResponseOption, null=True,
                                         blank=True)
     custom_text = models.TextField(null=True, blank=True)
 
