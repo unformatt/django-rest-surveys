@@ -19,7 +19,7 @@ class Survey(AbstractSurvey):
     pass
 
 
-SURVEY_MODEL = getattr(settings, 'SURVEY_MODEL', Survey)
+SURVEY_MODEL = getattr(settings, 'SURVEY_MODEL', 'rest_surveys.Survey')
 
 class SurveyStep(Orderable):
     survey = models.ForeignKey(SURVEY_MODEL, related_name='steps')
@@ -28,7 +28,8 @@ class SurveyStep(Orderable):
 
 
 class SurveyQuestion(Orderable):
-    step = models.ForeignKey(SurveyStep, related_name='questions')
+    step = models.ForeignKey('rest_surveys.SurveyStep',
+                             related_name='questions')
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
     is_required = models.BooleanField()
@@ -53,15 +54,15 @@ class SurveyResponseOption(models.Model):
 
 
 class SurveyQuestionResponseOption(Orderable):
-    question = models.ForeignKey(SurveyQuestion,
+    question = models.ForeignKey('rest_surveys.SurveyQuestion',
                                  related_name='question_response_options')
-    response_option = models.ForeignKey(SurveyResponseOption,
+    response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
                                         related_name='question_response_options') 
 
 class AbstractSurveyResponse(models.Model):
-    question = models.ForeignKey(SurveyQuestion)
-    response_option = models.ForeignKey(SurveyResponseOption, null=True,
-                                        blank=True)
+    question = models.ForeignKey('rest_surveys.SurveyQuestion')
+    response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
+                                        null=True, blank=True)
     custom_text = models.TextField(null=True, blank=True)
 
     class Meta:
