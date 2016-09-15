@@ -10,32 +10,87 @@ from rest_surveys.models import (
 )
 
 
-Survey = apps.get_model(app_label='rest_surveys',
-                        model_name=settings.REST_SURVEYS['SURVEY_MODEL'])
-SurveyResponse = apps.get_model(
-        app_label='rest_surveys',
-        model_name=settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
+Survey = apps.get_model(settings.REST_SURVEYS['SURVEY_MODEL'])
+SurveyResponse = apps.get_model(settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
+
+class SurveyResponseListSerializer(serializers.ListSerializer):
+
+    def create(self, validated_data):
+        """
+        Delete any old survey responses to "choose one" questions, then create
+        the survey responses.
+        """
+        response_fk = settings.REST_SURVEYS['SURVEY_RESPONSE_FK_NAME']
+        for response in validated_data:
+            if response['question'].format != SurveyQuestion.CHOOSE_ONE:
+                continue
+            filter_kwargs = {
+                'question': response['question'],
+                response_fk: response[response_fk],
+            }
+            SurveyResponse.objects.filter(**filter_kwargs).delete()
+
+        # Create new responses.
+        responses = []
+        for response in validated_data:
+            field_kwargs = {
+                'question': response['question'],
+                response_fk: response[response_fk],
+            }
+            response_option = response.get('response_option')
+            custom_text = response.get('custom_text')
+            if response_option:
+                field_kwargs['response_option'] = response_option
+            elif custom_text:
+                field_kwargs['custom_text'] = custom_text
+            new_response = SurveyResponse(**field_kwargs)
+            new_response.save()
+            responses.append(new_response)
+        return responses
+
 
 class SurveyResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SurveyResponse
+        list_serializer_class = SurveyResponseListSerializer
 
     def validate(self, data):
         """
-        Make sure that either `response_option` or `custom_text` are defined,
-        but not both.
+        Make sure that "choose one" questions have response options, and
+        "open ended" questions have custom text.
         """
         response_option = data.get('response_option')
         custom_text = data.get('custom_text')
-        if not response_option and not custom_text:
-            error = 'Either `response_option` or `custom_text` must be defined.'
+        question = data.get('question')
+
+        # Make sure "choose one" questions don't have custom text.
+        if question.format == question.CHOOSE_ONE and custom_text:
+            error = '"Choose one" questions can\'t have `custom_text` set'
             raise serializers.ValidationError(error) 
-        if response_option and custom_text:
-            error = ('Only one of `response_option` and `custom_text` may'
-                     'be defined.')
+        
+        # Make sure "open ended" questions don't have a response option.
+        if question.format == question.OPEN_ENDED and response_option:
+            error = '"Open ended" questions can\'t have `response_option` set.'
             raise serializers.ValidationError(error) 
+
         return data
+
+    def create(self, validated_data):
+        """
+        If this is a "choose one" question, delete any old survey responses
+        to the question.
+        """
+        response = validated_data
+        if response['question'].format == SurveyQuestion.CHOOSE_ONE:
+            response_fk = settings.REST_SURVEYS['SURVEY_RESPONSE_FK_NAME']
+            filter_kwargs = {
+                'question': response['question'],
+                response_fk: response[response_fk],
+            }
+            SurveyResponse.objects.filter(**filter_kwargs).delete()
+
+        return super(SurveyResponseSerializer, self).create(validated_data)
 
 
 class SurveyResponseOptionSerializer(serializers.ModelSerializer):
@@ -83,8 +138,6 @@ class SurveyStepSerializer(serializers.ModelSerializer):
 
 
 class SurveySerializer(serializers.ModelSerializer):
-    # TODO: All rest_surveys users to define reverse relations for their
-    # custom survey models.
     steps = serializers.SerializerMethodField()
 
     class Meta:

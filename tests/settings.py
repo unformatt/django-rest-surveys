@@ -3,8 +3,9 @@ import django
 
 # Django REST Surveys specific settings:
 REST_SURVEYS = {
-    'SURVEY_MODEL': 'Survey',
-    'SURVEY_RESPONSE_MODEL': 'SurveyResponse',
+    'SURVEY_MODEL': 'rest_surveys.Survey',
+    'SURVEY_RESPONSE_MODEL': 'tests.SessionSurveyResponse',
+    'SURVEY_RESPONSE_FK_NAME': 'session',
     'API_PATH': 'api/',
 }
 
@@ -66,4 +67,5 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'inline_ordering',
     'rest_surveys',
+    'tests',
 )

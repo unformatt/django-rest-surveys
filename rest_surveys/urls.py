@@ -1,17 +1,20 @@
 from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include, url
-from rest_framework import routers
-from rest_surveys.views import SurveyViewSet, SurveyResponseViewSet
+from rest_framework_bulk.routes import BulkRouter
+from rest_surveys.views import (
+    SurveyViewSet,
+    SurveyResponseViewSet,
+)
 
 
 # API
 # With trailing slash appended:
-router = routers.SimpleRouter()
+router = BulkRouter()
+router.register(r'surveys', SurveyViewSet, base_name='survey')
 router.register(r'survey-responses', SurveyResponseViewSet,
                 base_name='survey-response')
-router.register(r'surveys', SurveyViewSet)
-slashless_router = routers.SimpleRouter(trailing_slash=False)
+slashless_router = BulkRouter(trailing_slash=False)
 slashless_router.registry = router.registry[:]
 
 urlpatterns = [
