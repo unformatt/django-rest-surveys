@@ -22,12 +22,12 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
                             viewsets.GenericViewSet):
     queryset = SurveyResponse.objects.all()
     serializer_class = SurveyResponseSerializer
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = settings.REST_SURVEYS.get(
+           'SURVEY_RESPONSE_AUTHENTICATION_CLASSES', (SessionAuthentication,))
+    permission_classes = settings.REST_SURVEYS.get(
+           'SURVEY_RESPONSE_PERMISSION_CLASSES', (IsAuthenticated,))
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = get_all_model_fields(SurveyResponse)
-    permission_classes = (IsAuthenticated,)
-    #permission_classes = settings.REST_SURVEYS.get(
-    #       'survey_response_permission_classes')
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
@@ -42,5 +42,7 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = settings.REST_SURVEYS.get(
+           'SURVEY_AUTHENTICATION_CLASSES', (SessionAuthentication,))
+    permission_classes = settings.REST_SURVEYS.get(
+           'SURVEY_PERMISSION_CLASSES', (IsAuthenticated,))
