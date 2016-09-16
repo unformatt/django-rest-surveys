@@ -1,13 +1,13 @@
 from __future__ import unicode_literals
 from django.apps import apps
 from django.conf import settings
-from django_filters.utils import get_all_model_fields
 from rest_framework import serializers
 from rest_surveys.models import (
     SurveyStep,
     SurveyQuestion,
     SurveyResponseOption,
 )
+from rest_surveys.utils import get_all_model_fields
 
 
 Survey = apps.get_model(settings.REST_SURVEYS['SURVEY_MODEL'])

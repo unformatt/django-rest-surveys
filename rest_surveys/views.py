@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from django.apps import apps
 from django.conf import settings
-from django_filters.utils import get_all_model_fields
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import detail_route
@@ -13,6 +12,7 @@ from rest_surveys.serializers import (
     SurveySerializer,
     SurveyResponseSerializer,
 )
+from rest_surveys.utils import get_all_model_fields
 
 
 Survey = apps.get_model(settings.REST_SURVEYS['SURVEY_MODEL'])
@@ -28,6 +28,11 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
            'SURVEY_RESPONSE_PERMISSION_CLASSES', (IsAuthenticated,))
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = get_all_model_fields(SurveyResponse)
+    """
+    filter_fields = settings.REST_SURVEYS.get(
+           'SURVEY_RESPONSE_FILTER_FIELDS',
+           get_all_model_fields(SurveyResponse))
+    """
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
