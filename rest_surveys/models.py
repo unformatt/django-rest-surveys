@@ -20,10 +20,10 @@ class Survey(AbstractSurvey):
     pass
 
 
-SURVEY_MODEL = getattr(settings, 'SURVEY_MODEL', 'rest_surveys.Survey')
-
 class SurveyStep(Orderable):
-    survey = models.ForeignKey(SURVEY_MODEL, related_name='steps')
+    survey = models.ForeignKey(
+            settings.REST_SURVEYS.get('SURVEY_MODEL', 'rest_surveys.Survey'),
+            related_name='steps')
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
 

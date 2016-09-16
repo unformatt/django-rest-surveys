@@ -15,8 +15,10 @@ from rest_surveys.serializers import (
 from rest_surveys.utils import get_all_model_fields
 
 
-Survey = apps.get_model(settings.REST_SURVEYS['SURVEY_MODEL'])
-SurveyResponse = apps.get_model(settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
+Survey = apps.get_model(settings.REST_SURVEYS.get(
+        'SURVEY_MODEL', 'rest_surveys.Survey'))
+SurveyResponse = apps.get_model(settings.REST_SURVEYS.get(
+        'SURVEY_RESPONSE_MODEL', 'rest_surveys.SurveyResponse'))
 
 class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
                             viewsets.GenericViewSet):
