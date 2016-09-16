@@ -38,26 +38,7 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
-
-
-class SurveyStepResponsesView(APIView):
-
-    def post(self, request):
-        serializer = SurveyStepResponsesSerializer(data=request.data)
-        serializer.is_valid()
-        
-        # Delete any existing responses to the questions.
-        question_ids = [question.id for question in serializer.data.questions]
-        SurveyResponse.objects.filter(question_id__in=question_ids).delete()
-
-        # Create the new responses in a single statement.
-        responses = []
-        for question in serializer.data['questions']:
-            for response in question['responses']:
-                response = SurveyResponse(
-                        question_id=response.question,
-                        response_option_id=response.response_option)
-                response.save()
-        SurveyResponse.objects.bulk_create(responses)
-
-        return Response(status.HTTP_201_CREATED)
+    authentication_classes = (SessionAuthentication,)
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = get_all_model_fields(SurveyResponse)
+    permission_classes = (IsAuthenticated,)
