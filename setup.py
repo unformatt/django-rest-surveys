@@ -28,6 +28,11 @@ setup(
     packages=['rest_surveys'],
     package_data={'': ['LICENSE']},
     package_dir={'rest_surveys': 'rest_surveys'},
-    install_requires=['Django>=1.7', 'djangorestframework>=3.0', 'django-inline-ordering'],
+    install_requires=[
+        'Django>=1.7',
+        'djangorestframework>=3.0',
+        'django-inline-ordering',
+        'djangorestframework-bulk',
+    ],
     license=license,
 )
