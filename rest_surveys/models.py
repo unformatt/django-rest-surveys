@@ -33,7 +33,7 @@ class SurveyQuestion(Orderable):
                              related_name='questions')
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
-    is_required = models.BooleanField()
+    is_required = models.BooleanField(default=True)
     OPEN_ENDED = 0
     CHOOSE_ONE = 1
     CHOOSE_MULTIPLE = 2
