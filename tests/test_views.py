@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from rest_framework import status
@@ -23,6 +24,14 @@ Survey = apps.get_model(settings.REST_SURVEYS['SURVEY_MODEL'])
 SurveyResponse = apps.get_model(settings.REST_SURVEYS['SURVEY_RESPONSE_MODEL'])
 
 def mock_survey_data(cls):
+    # User
+    password = 'designlab'
+    cls.user = User.objects.create_user('danxshap', 'hello@designlab.com',
+                                        password)
+
+    # Log the user in.
+    cls.client.login(username=cls.user.username, password=password)
+
     # Survey
     title = ('Hi {student_name}, how can we improve things with your mentor'
              ' {mentor_name}?')
@@ -203,7 +212,12 @@ class SurveyResponseTests(APITestCase):
         response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # TODO: Handle authentication
+    def test_create_not_logged_in(self):
+        # Log the user out.
+        self.client.logout()
+
+        response = self.client.post(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_list(self):
         response = self.client.get(self.list_url)
@@ -242,6 +256,13 @@ class SurveyResponseTests(APITestCase):
         json_survey_response = JSONRenderer().render(serializer.data)
         self.assertEqual(response.content, json_survey_response)
 
+    def test_list_not_logged_in(self):
+        # Log the user out.
+        self.client.logout()
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
         # TODO: Limit what you can filter by
 
 
@@ -262,3 +283,10 @@ class SurveyTests(APITestCase):
         serializer = SurveySerializer(self.survey)
         json_survey = JSONRenderer().render(serializer.data)
         self.assertEqual(response.content, json_survey)
+
+    def test_get_not_logged_in(self):
+        # Log the user out.
+        self.client.logout()
+
+        response = self.client.get(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
