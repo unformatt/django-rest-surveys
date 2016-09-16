@@ -27,12 +27,9 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
     permission_classes = settings.REST_SURVEYS.get(
            'SURVEY_RESPONSE_PERMISSION_CLASSES', (IsAuthenticated,))
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = get_all_model_fields(SurveyResponse)
-    """
     filter_fields = settings.REST_SURVEYS.get(
            'SURVEY_RESPONSE_FILTER_FIELDS',
            get_all_model_fields(SurveyResponse))
-    """
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
