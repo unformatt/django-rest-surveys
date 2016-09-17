@@ -14,23 +14,20 @@ def remote_field(field):
         return field.remote_field
     return field.rel
 
-def get_all_model_fields(model, field_types=None):
+def get_field_names(model, field_types=None):
     """
-    Function from django-filter 0.14.0. Future versions of django-filters don't
-    support Django 1.7, so we're sticking with django-filter 0.11.0 for now.
+    Return a list of `model`'s fields.
     """
     opts = model._meta
 
     if field_types is not None:
         return [
-            f.name for f in sorted(opts.fields + opts.many_to_many)
-            if not isinstance(f, models.AutoField) and
-            not (getattr(remote_field(f), 'parent_link', False)) and
+            f.name for f in (opts.fields + opts.many_to_many)
+            if not (getattr(remote_field(f), 'parent_link', False)) and
             f.__class__ in field_types
         ]
 
     return [
-        f.name for f in sorted(opts.fields + opts.many_to_many)
-        if not isinstance(f, models.AutoField) and
-        not (getattr(remote_field(f), 'parent_link', False))
+        f.name for f in (opts.fields + opts.many_to_many)
+        if not (getattr(remote_field(f), 'parent_link', False))
     ]

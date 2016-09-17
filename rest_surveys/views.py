@@ -12,7 +12,7 @@ from rest_surveys.serializers import (
     SurveySerializer,
     SurveyResponseSerializer,
 )
-from rest_surveys.utils import get_all_model_fields
+from rest_surveys.utils import get_field_names
 
 
 Survey = apps.get_model(settings.REST_SURVEYS.get(
@@ -31,7 +31,7 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = settings.REST_SURVEYS.get(
            'SURVEY_RESPONSE_FILTER_FIELDS',
-           get_all_model_fields(SurveyResponse))
+           get_field_names(SurveyResponse))
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:

@@ -7,7 +7,7 @@ from rest_surveys.models import (
     SurveyQuestion,
     SurveyResponseOption,
 )
-from rest_surveys.utils import get_all_model_fields
+from rest_surveys.utils import get_field_names
 
 
 Survey = apps.get_model(settings.REST_SURVEYS.get(
@@ -107,7 +107,7 @@ class SurveyQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyQuestion
         fields = [
-            field for field in get_all_model_fields(SurveyQuestion)
+            field for field in get_field_names(SurveyQuestion)
             if field not in ('inline_ordering_position', 'step')
         ] + ['response_options']
 
@@ -129,7 +129,7 @@ class SurveyStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyStep
         fields = [
-            field for field in get_all_model_fields(SurveyStep)
+            field for field in get_field_names(SurveyStep)
             if field not in ('inline_ordering_position', 'survey')
         ] + ['questions']
 
@@ -144,7 +144,7 @@ class SurveySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survey
-        fields = get_all_model_fields(Survey) + ['steps']
+        fields = get_field_names(Survey) + ['steps']
 
     def get_steps(self, obj):
         steps = obj.steps.order_by('inline_ordering_position')
