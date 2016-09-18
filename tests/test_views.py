@@ -123,6 +123,13 @@ class SurveyResponseTests(APITestCase):
         self.list_url = reverse('survey-response-list')
 
     def test_create_bulk(self):
+        # Mock a response with custom text.
+        custom_text = 'I can\'t imagine a better mentor!'
+        survey_response = SurveyResponse(session=self.session,
+                                         question=self.survey_question2,
+                                         custom_text=custom_text)
+        survey_response.save()
+
         new_response_option = self.survey_response_option2
         custom_text = 'Thank you for being such a great mentor!'
         data = [{
@@ -137,14 +144,16 @@ class SurveyResponseTests(APITestCase):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # It should delete the old survey response.
+        # It should delete the old survey responses.
         with self.assertRaises(SurveyResponse.DoesNotExist):
             SurveyResponse.objects.get(id=self.survey_response.id)
+        with self.assertRaises(SurveyResponse.DoesNotExist):
+            SurveyResponse.objects.get(id=survey_response.id)
 
         # It should create new survey responses.
         survey_response1 = SurveyResponse.objects.get(
                 session=self.session,
-                question_id=self.survey_response.question,
+                question=self.survey_response.question,
                 response_option=new_response_option)
         survey_response2 = SurveyResponse.objects.get(
                 session=self.session,

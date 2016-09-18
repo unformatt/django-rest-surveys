@@ -23,8 +23,13 @@ class SurveyResponseListSerializer(serializers.ListSerializer):
         the survey responses.
         """
         response_fk = settings.REST_SURVEYS['SURVEY_RESPONSE_FK_NAME']
+
         for response in validated_data:
-            if response['question'].format != SurveyQuestion.CHOOSE_ONE:
+            one_response_formats = [
+                SurveyQuestion.CHOOSE_ONE,
+                SurveyQuestion.OPEN_ENDED,
+            ]
+            if response['question'].format not in one_response_formats:
                 continue
             filter_kwargs = {
                 'question': response['question'],
