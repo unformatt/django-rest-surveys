@@ -90,6 +90,7 @@ ENV/
 
 # Vim
 *.sw[nop]
+*.un~
 
 # Mac
 .DS_STORE
