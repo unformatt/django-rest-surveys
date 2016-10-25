@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from django.apps import apps
 from django.conf import settings
 from rest_framework import serializers
 from rest_surveys.models import (
@@ -9,11 +8,11 @@ from rest_surveys.models import (
 )
 from rest_surveys.utils import get_field_names
 
+import swapper
 
-Survey = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_MODEL', 'rest_surveys.Survey'))
-SurveyResponse = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_RESPONSE_MODEL', 'rest_surveys.SurveyResponse'))
+
+Survey = swapper.load_model('rest_surveys', 'Survey')
+SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
 class SurveyResponseListSerializer(serializers.ListSerializer):
 
@@ -74,12 +73,12 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
         # Make sure "choose one" questions don't have custom text.
         if question.format == question.CHOOSE_ONE and custom_text:
             error = '"Choose one" questions can\'t have `custom_text` set'
-            raise serializers.ValidationError(error) 
-        
+            raise serializers.ValidationError(error)
+
         # Make sure "open ended" questions don't have a response option.
         if question.format == question.OPEN_ENDED and response_option:
             error = '"Open ended" questions can\'t have `response_option` set.'
-            raise serializers.ValidationError(error) 
+            raise serializers.ValidationError(error)
 
         return data
 

@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
-import sys
+
 from django.db import models
-from django.conf import settings
+
+import swapper
+
 from inline_ordering.models import Orderable
 # NOTE: Until we make inline_ordering optional, require users to add
 # 'inline_ordering' to their INSTALLED_APPS.
@@ -11,19 +13,19 @@ from inline_ordering.models import Orderable
 class AbstractSurvey(models.Model):
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
-    
+
     class Meta:
         abstract = True
 
 
 class Survey(AbstractSurvey):
-    pass
+    class Meta:
+        swappable = swapper.swappable_setting('rest_surveys', 'Survey')
 
 
 class SurveyStep(Orderable):
-    survey = models.ForeignKey(
-            settings.REST_SURVEYS.get('SURVEY_MODEL', 'rest_surveys.Survey'),
-            related_name='steps')
+    survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'),
+                               related_name='steps')
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
 
@@ -58,17 +60,25 @@ class SurveyQuestionResponseOption(Orderable):
     question = models.ForeignKey('rest_surveys.SurveyQuestion',
                                  related_name='question_response_options')
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
-                                        related_name='question_response_options') 
+                                        related_name='question_response_options')
 
 class AbstractSurveyResponse(models.Model):
-    question = models.ForeignKey('rest_surveys.SurveyQuestion')
-    response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
-                                        null=True, blank=True)
-    custom_text = models.TextField(null=True, blank=True)
+    survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'))
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
 
 
 class SurveyResponse(AbstractSurveyResponse):
-    pass
+    class Meta:
+        swappable = swapper.swappable_setting('rest_surveys', 'SurveyResponse')
+
+
+class SurveyQuestionResponse(models.Model):
+    survey_response = models.ForeignKey(swapper.get_model_name('rest_surveys',
+                                                               'SurveyResponse'))
+    question = models.ForeignKey('rest_surveys.SurveyQuestion')
+    response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
+                                        null=True, blank=True)
+    custom_text = models.TextField(null=True, blank=True)

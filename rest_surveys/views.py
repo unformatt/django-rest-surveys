@@ -1,12 +1,8 @@
 from __future__ import unicode_literals
-from django.apps import apps
 from django.conf import settings
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_bulk import BulkCreateModelMixin
 from rest_surveys.serializers import (
     SurveySerializer,
@@ -14,11 +10,11 @@ from rest_surveys.serializers import (
 )
 from rest_surveys.utils import get_field_names
 
+import swapper
 
-Survey = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_MODEL', 'rest_surveys.Survey'))
-SurveyResponse = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_RESPONSE_MODEL', 'rest_surveys.SurveyResponse'))
+
+Survey = swapper.load_model('rest_surveys', 'Survey')
+SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
 class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
                             viewsets.GenericViewSet):

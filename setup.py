@@ -34,6 +34,7 @@ setup(
         'django-filter<=0.11.0',
         'djangorestframework>=3.0',
         'djangorestframework-bulk',
+        'swapper>=1.0.0'
     ],
     license=license,
 )
