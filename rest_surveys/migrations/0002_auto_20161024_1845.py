@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='surveyquestionresponse',
             name='survey_response',
-            field=models.ForeignKey(to=settings.REST_SURVEYS_SURVEYRESPONSE_MODEL),
+            field=models.ForeignKey(related_name='question_responses', to=settings.REST_SURVEYS_SURVEYRESPONSE_MODEL),
             preserve_default=True,
         ),
         migrations.AddField(

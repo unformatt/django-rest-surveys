@@ -17,6 +17,9 @@ class AbstractSurvey(models.Model):
     class Meta:
         abstract = True
 
+    def __unicode__(self):
+        return u'{0}'.format(self.title)
+
 
 class Survey(AbstractSurvey):
     class Meta:
@@ -76,8 +79,8 @@ class SurveyResponse(AbstractSurveyResponse):
 
 
 class SurveyQuestionResponse(models.Model):
-    survey_response = models.ForeignKey(swapper.get_model_name('rest_surveys',
-                                                               'SurveyResponse'))
+    survey_response = models.ForeignKey(swapper.get_model_name(
+            'rest_surveys', 'SurveyResponse'), related_name='question_responses')
     question = models.ForeignKey('rest_surveys.SurveyQuestion')
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
                                         null=True, blank=True)
