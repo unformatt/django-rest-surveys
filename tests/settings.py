@@ -5,7 +5,6 @@ import django
 REST_SURVEYS = {
     #'SURVEY_AUTHENTICATION_CLASSES': (SessionAuthentication,),
     #'SURVEY_PERMISSION_CLASSES': (IsAuthenticated,),
-    'SURVEY_RESPONSE_FK_NAME': 'session',
     #'SURVEY_RESPONSE_AUTHENTICATION_CLASSES': (SessionAuthentication,),
     #'SURVEY_RESPONSE_PERMISSION_CLASSES': (IsAuthenticated,),
     #'SURVEY_RESPONSE_FILTER_FIELDS': ('question',),

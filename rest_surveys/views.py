@@ -3,12 +3,8 @@ from django.conf import settings
 from rest_framework import filters, mixins, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_bulk import BulkCreateModelMixin
-from rest_surveys.serializers import (
-    SurveySerializer,
-    SurveyResponseSerializer,
-)
-from rest_surveys.utils import get_field_names
+from rest_surveys.serializers import SurveySerializer
+from rest_surveys.utils import get_field_names, to_class
 
 import swapper
 
@@ -16,10 +12,15 @@ import swapper
 Survey = swapper.load_model('rest_surveys', 'Survey')
 SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
-class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
+class SurveyResponseViewSet(mixins.RetrieveModelMixin,
+                            mixins.CreateModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.ListModelMixin,
                             viewsets.GenericViewSet):
     queryset = SurveyResponse.objects.all()
-    serializer_class = SurveyResponseSerializer
+    serializer_class = to_class(
+            getattr(settings, 'REST_SURVEYS_SURVEYRESPONSE_SERIALIZER',
+                    'rest_surveys.serializers.SurveyResponseSerializer'))
     authentication_classes = settings.REST_SURVEYS.get(
            'SURVEY_RESPONSE_AUTHENTICATION_CLASSES', (SessionAuthentication,))
     permission_classes = settings.REST_SURVEYS.get(
@@ -28,15 +29,6 @@ class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
     filter_fields = settings.REST_SURVEYS.get(
            'SURVEY_RESPONSE_FILTER_FIELDS',
            get_field_names(SurveyResponse))
-
-    def get_serializer(self, *args, **kwargs):
-        if 'data' in kwargs:
-            data = kwargs['data']
-
-            if isinstance(data, list):
-                kwargs['many'] = True
-
-        return super(SurveyResponseViewSet, self).get_serializer(*args, **kwargs)
 
 
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):

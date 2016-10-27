@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-import django
-from django.db import models
+import django, importlib
 
 
 def remote_field(field):
@@ -31,3 +30,12 @@ def get_field_names(model, field_types=None):
         f.name for f in (opts.fields + opts.many_to_many)
         if not (getattr(remote_field(f), 'parent_link', False))
     ]
+
+def to_class(class_str):
+    if not class_str:
+        return None
+
+    module_bits = class_str.split('.')
+    module_path, class_name = '.'.join(module_bits[:-1]), module_bits[-1]
+    module = importlib.import_module(module_path)
+    return getattr(module, class_name, None)
