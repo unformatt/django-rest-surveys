@@ -29,8 +29,12 @@ class Survey(AbstractSurvey):
 class SurveyStep(Orderable):
     survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'),
                                related_name='steps')
-    title = models.TextField()
+    title = models.TextField(blank=True)
     description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u'{0} ({1}): {2}'.format(
+            self.survey, self.inline_ordering_position, self.title)
 
 
 class SurveyQuestion(Orderable):
@@ -57,6 +61,12 @@ class SurveyQuestion(Orderable):
 
 class SurveyResponseOption(models.Model):
     text = models.TextField()
+
+    class Meta:
+        ordering = ['text']
+
+    def __unicode__(self):
+        return u'{0}'.format(self.text)
 
 
 class SurveyQuestionResponseOption(Orderable):

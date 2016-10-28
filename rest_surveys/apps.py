@@ -4,3 +4,4 @@ from django.apps import AppConfig
 
 class RestSurveysConfig(AppConfig):
     name = 'rest_surveys'
+    verbose_name = 'REST Surveys'

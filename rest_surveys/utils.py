@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import django, importlib
+from django.core.urlresolvers import reverse
 
 
 def remote_field(field):
@@ -39,3 +40,8 @@ def to_class(class_str):
     module_path, class_name = '.'.join(module_bits[:-1]), module_bits[-1]
     module = importlib.import_module(module_path)
     return getattr(module, class_name, None)
+
+def admin_edit_link(obj):
+  url = reverse('admin:{0}_{1}_change'.format(obj._meta.app_label,
+      obj._meta.model_name),  args=[obj.pk])
+  return u'<a href="{0}">{1}</a>'.format(url, obj)
