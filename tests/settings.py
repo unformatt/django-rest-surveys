@@ -3,11 +3,8 @@ import django
 
 # Django REST Surveys specific settings:
 REST_SURVEYS = {
-    'SURVEY_MODEL': 'rest_surveys.Survey',
     #'SURVEY_AUTHENTICATION_CLASSES': (SessionAuthentication,),
     #'SURVEY_PERMISSION_CLASSES': (IsAuthenticated,),
-    'SURVEY_RESPONSE_MODEL': 'tests.SessionSurveyResponse',
-    'SURVEY_RESPONSE_FK_NAME': 'session',
     #'SURVEY_RESPONSE_AUTHENTICATION_CLASSES': (SessionAuthentication,),
     #'SURVEY_RESPONSE_PERMISSION_CLASSES': (IsAuthenticated,),
     #'SURVEY_RESPONSE_FILTER_FIELDS': ('question',),

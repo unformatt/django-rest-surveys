@@ -2,4 +2,5 @@ Django==1.7.10
 django-filter==0.11.0
 djangorestframework==3.3.3
 djangorestframework-bulk==0.2.1
+swapper==1.0.0
 -e git://github.com/danxshap/django-inline-ordering.git@908d9c9f915e7ecf61226bff535afa3bb6657a6d#egg=django-inline-ordering

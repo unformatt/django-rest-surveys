@@ -1,104 +1,135 @@
 from __future__ import unicode_literals
-from django.apps import apps
-from django.conf import settings
 from rest_framework import serializers
 from rest_surveys.models import (
     SurveyStep,
     SurveyQuestion,
     SurveyResponseOption,
+    SurveyQuestionResponse
 )
 from rest_surveys.utils import get_field_names
 
-
-Survey = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_MODEL', 'rest_surveys.Survey'))
-SurveyResponse = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_RESPONSE_MODEL', 'rest_surveys.SurveyResponse'))
-
-class SurveyResponseListSerializer(serializers.ListSerializer):
-
-    def create(self, validated_data):
-        """
-        Delete any old survey responses to "choose one" questions, then create
-        the survey responses.
-        """
-        response_fk = settings.REST_SURVEYS['SURVEY_RESPONSE_FK_NAME']
-
-        for response in validated_data:
-            one_response_formats = [
-                SurveyQuestion.CHOOSE_ONE,
-                SurveyQuestion.OPEN_ENDED,
-            ]
-            if response['question'].format not in one_response_formats:
-                continue
-            filter_kwargs = {
-                'question': response['question'],
-                response_fk: response[response_fk],
-            }
-            SurveyResponse.objects.filter(**filter_kwargs).delete()
-
-        # Create new responses.
-        responses = []
-        for response in validated_data:
-            field_kwargs = {
-                'question': response['question'],
-                response_fk: response[response_fk],
-            }
-            response_option = response.get('response_option')
-            custom_text = response.get('custom_text')
-            if response_option:
-                field_kwargs['response_option'] = response_option
-            elif custom_text:
-                field_kwargs['custom_text'] = custom_text
-            new_response = SurveyResponse(**field_kwargs)
-            new_response.save()
-            responses.append(new_response)
-        return responses
+import swapper
 
 
-class SurveyResponseSerializer(serializers.ModelSerializer):
+Survey = swapper.load_model('rest_surveys', 'Survey')
+SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
+class SurveyQuestionResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SurveyResponse
-        list_serializer_class = SurveyResponseListSerializer
+        model = SurveyQuestionResponse
+        exclude = ['survey_response']
 
     def validate(self, data):
-        """
-        Make sure that "choose one" questions have response options, and
-        "open ended" questions have custom text.
-        """
-        response_option = data.get('response_option')
-        custom_text = data.get('custom_text')
-        question = data.get('question')
+        response_option = data.get('response_option', None)
+        custom_text = data.get('custom_text', None)
+        question = data.get('question', None)
 
-        # Make sure "choose one" questions don't have custom text.
-        if question.format == question.CHOOSE_ONE and custom_text:
-            error = '"Choose one" questions can\'t have `custom_text` set'
-            raise serializers.ValidationError(error) 
-        
+        # Validate "choose one"
+        if question.format == question.CHOOSE_ONE:
+            if custom_text:
+                error = '"Choose one" questions can\'t have `custom_text` set'
+                raise serializers.ValidationError(error)
+
+            if not response_option:
+                error = '"Choose one" questions must have `response_option` set'
+                raise serializers.ValidationError(error)
+
         # Make sure "open ended" questions don't have a response option.
         if question.format == question.OPEN_ENDED and response_option:
             error = '"Open ended" questions can\'t have `response_option` set.'
-            raise serializers.ValidationError(error) 
+            raise serializers.ValidationError(error)
+
+        # If there's a response option, make sure it's for this question
+        if response_option and response_option not in \
+                                    question.response_options.all():
+            error = 'Invalid response_option {0} for question {1}'\
+                .format(response_option.pk, question.pk)
+            raise serializers.ValidationError(error)
+
+        return data
+
+
+class SurveyResponseSerializer(serializers.ModelSerializer):
+    question_responses = SurveyQuestionResponseSerializer(many=True)
+
+    class Meta:
+        model = SurveyResponse
+
+    def validate_question_responses(self, value):
+        question_responses = value
+
+        # Make sure there is at least 1 question response
+        if not question_responses:
+            error = '`question_responses` cannot be empty'
+            raise serializers.ValidationError(error)
+
+        # Make sure there is at most 1 response for each "choose one" question
+        one_response_used = set()
+        one_response_formats = [
+            SurveyQuestion.CHOOSE_ONE,
+            SurveyQuestion.OPEN_ENDED,
+        ]
+
+        for question_response in question_responses:
+            question = question_response['question']
+
+            if question.format not in one_response_formats:
+                continue
+
+            if question.pk in one_response_used:
+                error = '"Choose one" or "Open ended" questions can only have 1 response'
+                raise serializers.ValidationError(error)
+            else:
+                one_response_used.add(question.pk)
+
+        return value
+
+    def validate(self, data):
+        """
+        Make sure all responses are for quesitons for the correct survey
+        """
+        survey = data.get('survey', None)
+        question_responses = data.get('question_responses', None)
+
+        for question_response in question_responses:
+            question = question_response['question']
+            if question.step.survey != survey:
+                error = 'question {0} is not in survey {1}'\
+                    .format(question.pk, survey.pk)
+                raise serializers.ValidationError(error)
 
         return data
 
     def create(self, validated_data):
         """
-        If this is a "choose one" question, delete any old survey responses
-        to the question.
+        Create a survey response along with nested question responses
         """
-        response = validated_data
-        if response['question'].format == SurveyQuestion.CHOOSE_ONE:
-            response_fk = settings.REST_SURVEYS['SURVEY_RESPONSE_FK_NAME']
-            filter_kwargs = {
-                'question': response['question'],
-                response_fk: response[response_fk],
-            }
-            SurveyResponse.objects.filter(**filter_kwargs).delete()
+        question_responses = validated_data.pop('question_responses')
+        survey_response = super(SurveyResponseSerializer, self).create(validated_data)
 
-        return super(SurveyResponseSerializer, self).create(validated_data)
+        for question_response in question_responses:
+            SurveyQuestionResponse.objects.create(survey_response=survey_response,
+                                                  **question_response)
 
+        return survey_response
+
+    def update(self, instance, validated_data):
+        """
+        Add or update question responses
+        """
+        question_responses = validated_data.get('question_responses')
+
+        # Delete all existing question responses for any questions
+        # that correspond to the responses we are updating with.
+        updated_questions = {r['question'] for r in question_responses}
+        instance.question_responses.filter(question__in=
+                                           updated_questions).delete()
+
+        for question_response in question_responses:
+            SurveyQuestionResponse.objects.create(survey_response=instance,
+                                                  **question_response)
+
+        return instance
 
 class SurveyResponseOptionSerializer(serializers.ModelSerializer):
 

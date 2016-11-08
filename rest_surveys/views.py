@@ -1,52 +1,43 @@
 from __future__ import unicode_literals
-from django.apps import apps
 from django.conf import settings
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_bulk import BulkCreateModelMixin
-from rest_surveys.serializers import (
-    SurveySerializer,
-    SurveyResponseSerializer,
-)
-from rest_surveys.utils import get_field_names
+from rest_surveys.serializers import SurveySerializer
+from rest_surveys.utils import get_field_names, to_class
+
+import swapper
 
 
-Survey = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_MODEL', 'rest_surveys.Survey'))
-SurveyResponse = apps.get_model(settings.REST_SURVEYS.get(
-        'SURVEY_RESPONSE_MODEL', 'rest_surveys.SurveyResponse'))
+Survey = swapper.load_model('rest_surveys', 'Survey')
+SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
-class SurveyResponseViewSet(BulkCreateModelMixin, mixins.ListModelMixin,
+class SurveyResponseViewSet(mixins.RetrieveModelMixin,
+                            mixins.CreateModelMixin,
+                            mixins.UpdateModelMixin,
                             viewsets.GenericViewSet):
     queryset = SurveyResponse.objects.all()
-    serializer_class = SurveyResponseSerializer
-    authentication_classes = settings.REST_SURVEYS.get(
-           'SURVEY_RESPONSE_AUTHENTICATION_CLASSES', (SessionAuthentication,))
-    permission_classes = settings.REST_SURVEYS.get(
-           'SURVEY_RESPONSE_PERMISSION_CLASSES', (IsAuthenticated,))
+    serializer_class = to_class(
+            getattr(settings, 'REST_SURVEYS_SURVEYRESPONSE_SERIALIZER',
+                    'rest_surveys.serializers.SurveyResponseSerializer'))
+    authentication_classes = getattr(
+        settings, 'REST_SURVEYS_SURVEYRESPONSE_AUTHENTICATION_CLASSES',
+        (SessionAuthentication,))
+    permission_classes = getattr(
+        settings, 'REST_SURVEYS_SURVEYRESPONSE_PERMISSION_CLASSES',
+        (IsAuthenticated,))
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = settings.REST_SURVEYS.get(
-           'SURVEY_RESPONSE_FILTER_FIELDS',
-           get_field_names(SurveyResponse))
-
-    def get_serializer(self, *args, **kwargs):
-        if 'data' in kwargs:
-            data = kwargs['data']
-
-            if isinstance(data, list):
-                kwargs['many'] = True
-
-        return super(SurveyResponseViewSet, self).get_serializer(*args, **kwargs)
+    filter_fields = getattr(settings,
+                            'REST_SURVEYS_SURVEYRESPONSE_FILTER_FIELDS',
+                            get_field_names(SurveyResponse))
 
 
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
-    authentication_classes = settings.REST_SURVEYS.get(
-           'SURVEY_AUTHENTICATION_CLASSES', (SessionAuthentication,))
-    permission_classes = settings.REST_SURVEYS.get(
-           'SURVEY_PERMISSION_CLASSES', (IsAuthenticated,))
+    authentication_classes = getattr(
+        settings, 'REST_SURVEYS_SURVEY_AUTHENTICATION_CLASSES',
+        (SessionAuthentication,))
+    permission_classes = getattr(
+        settings, 'REST_SURVEYS_SURVEY_PERMISSION_CLASSES',
+        (IsAuthenticated,))

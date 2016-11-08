@@ -19,9 +19,9 @@ slashless_router.registry = router.registry[:]
 
 urlpatterns = [
     url(r'^{api_path}'.format(
-                api_path=settings.REST_SURVEYS.get('API_PATH', 'api/')),
+                api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
         include(router.urls)),
     url(r'^{api_path}'.format(
-                api_path=settings.REST_SURVEYS.get('API_PATH', 'api/')),
+                api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
         include(slashless_router.urls)),
 ]
