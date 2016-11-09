@@ -62,9 +62,6 @@ class SurveyQuestion(Orderable):
 class SurveyResponseOption(models.Model):
     text = models.TextField()
 
-    class Meta:
-        ordering = ['text']
-
     def __unicode__(self):
         return u'{0}'.format(self.text)
 
