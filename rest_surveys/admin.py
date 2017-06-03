@@ -53,6 +53,7 @@ class SurveyQuestionAdmin(admin.ModelAdmin):
     exclude = ['response_options']
     list_display = ['title', 'step_position', 'survey']
     list_filter = ['step__survey']
+    ordering = ['step__inline_ordering_position', 'inline_ordering_position']
 
     def step_position(self, question):
         return question.step.inline_ordering_position
