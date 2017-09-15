@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 from django.conf import settings
 from rest_framework import filters, mixins, viewsets
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_surveys.serializers import SurveySerializer
 from rest_surveys.utils import get_field_names, to_class
 
@@ -18,14 +16,22 @@ class SurveyResponseViewSet(mixins.RetrieveModelMixin,
                             viewsets.GenericViewSet):
     queryset = SurveyResponse.objects.all()
     serializer_class = to_class(
-            getattr(settings, 'REST_SURVEYS_SURVEYRESPONSE_SERIALIZER',
-                    'rest_surveys.serializers.SurveyResponseSerializer'))
-    authentication_classes = getattr(
-        settings, 'REST_SURVEYS_SURVEYRESPONSE_AUTHENTICATION_CLASSES',
-        (SessionAuthentication,))
-    permission_classes = getattr(
-        settings, 'REST_SURVEYS_SURVEYRESPONSE_PERMISSION_CLASSES',
-        (IsAuthenticated,))
+        getattr(
+            settings,
+            'REST_SURVEYS_SURVEYRESPONSE_SERIALIZER',
+            'rest_surveys.serializers.SurveyResponseSerializer'
+        )
+    )
+    authentication_classes = [to_class(authentication_class) for authentication_class in getattr(
+        settings,
+        'REST_SURVEYS_SURVEYRESPONSE_AUTHENTICATION_CLASSES',
+        ['rest_framework.authentication.SessionAuthentication']
+    )]
+    permission_classes = [to_class(permission_class) for permission_class in getattr(
+        settings,
+        'REST_SURVEYS_SURVEYRESPONSE_PERMISSION_CLASSES',
+        ['rest_framework.permissions.IsAuthenticated']
+    )]
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = getattr(settings,
                             'REST_SURVEYS_SURVEYRESPONSE_FILTER_FIELDS',
@@ -35,9 +41,13 @@ class SurveyResponseViewSet(mixins.RetrieveModelMixin,
 class SurveyViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
-    authentication_classes = getattr(
-        settings, 'REST_SURVEYS_SURVEY_AUTHENTICATION_CLASSES',
-        (SessionAuthentication,))
-    permission_classes = getattr(
-        settings, 'REST_SURVEYS_SURVEY_PERMISSION_CLASSES',
-        (IsAuthenticated,))
+    authentication_classes = [to_class(authentication_class) for authentication_class in getattr(
+        settings,
+        'REST_SURVEYS_SURVEY_AUTHENTICATION_CLASSES',
+        ['rest_framework.authentication.SessionAuthentication']
+    )]
+    permission_classes = [to_class(permission_class) for permission_class in getattr(
+        settings,
+        'REST_SURVEYS_SURVEY_PERMISSION_CLASSES',
+        ['rest_framework.permissions.IsAuthenticated']
+    )]
