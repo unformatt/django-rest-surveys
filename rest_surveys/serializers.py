@@ -53,6 +53,7 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
     question_responses = SurveyQuestionResponseSerializer(many=True)
 
     class Meta:
+        fields = '__all__'
         model = SurveyResponse
 
     def validate_question_responses(self, value):
@@ -134,6 +135,7 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
 class SurveyResponseOptionSerializer(serializers.ModelSerializer):
 
     class Meta:
+        fields = '__all__'
         model = SurveyResponseOption
 
 
