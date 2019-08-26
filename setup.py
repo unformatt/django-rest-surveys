@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'Django>=1.7',
         'django-inline-ordering',
-        'django-filter<=0.11.0',
+        'django-filter>=1.0.0',
         'djangorestframework>=3.0',
         'djangorestframework-bulk',
         'swapper>=1.0.0'
