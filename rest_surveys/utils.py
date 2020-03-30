@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import django, importlib
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def remote_field(field):
