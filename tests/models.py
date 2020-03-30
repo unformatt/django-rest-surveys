@@ -7,6 +7,6 @@ class Session(models.Model):
 
 
 class SessionSurveyResponse(AbstractSurveyResponse):
-    session = models.ForeignKey('tests.Session')
+    session = models.ForeignKey('tests.Session', on_delete=models.CASCADE)
 
 

@@ -28,7 +28,7 @@ class Survey(AbstractSurvey):
 
 class SurveyStep(Orderable):
     survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'),
-                               related_name='steps')
+                               related_name='steps', on_delete=models.CASCADE)
     title = models.TextField(blank=True)
     description = models.TextField(null=True, blank=True)
 
@@ -39,7 +39,7 @@ class SurveyStep(Orderable):
 
 class SurveyQuestion(Orderable):
     step = models.ForeignKey('rest_surveys.SurveyStep',
-                             related_name='questions')
+                             related_name='questions', on_delete=models.CASCADE)
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
     is_required = models.BooleanField(default=True)
@@ -68,12 +68,12 @@ class SurveyResponseOption(models.Model):
 
 class SurveyQuestionResponseOption(Orderable):
     question = models.ForeignKey('rest_surveys.SurveyQuestion',
-                                 related_name='question_response_options')
+                                 related_name='question_response_options', on_delete=models.CASCADE)
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
-                                        related_name='question_response_options')
+                                        related_name='question_response_options', on_delete=models.CASCADE)
 
 class AbstractSurveyResponse(models.Model):
-    survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'))
+    survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'), on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -87,8 +87,8 @@ class SurveyResponse(AbstractSurveyResponse):
 
 class SurveyQuestionResponse(models.Model):
     survey_response = models.ForeignKey(swapper.get_model_name(
-            'rest_surveys', 'SurveyResponse'), related_name='question_responses')
-    question = models.ForeignKey('rest_surveys.SurveyQuestion')
+            'rest_surveys', 'SurveyResponse'), related_name='question_responses', on_delete=models.CASCADE)
+    question = models.ForeignKey('rest_surveys.SurveyQuestion', on_delete=models.CASCADE)
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
-                                        null=True, blank=True)
+                                        null=True, blank=True, on_delete=models.CASCADE)
     custom_text = models.TextField(null=True, blank=True)
