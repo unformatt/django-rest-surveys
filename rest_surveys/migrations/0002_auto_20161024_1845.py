@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('custom_text', models.TextField(null=True, blank=True)),
-                ('question', models.ForeignKey(to='rest_surveys.SurveyQuestion')),
+                ('question', models.ForeignKey(on_delete=models.deletion.CASCADE, to='rest_surveys.SurveyQuestion')),
             ],
             options={
             },
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('inline_ordering_position', models.IntegerField(null=True, blank=True)),
-                ('question', models.ForeignKey(related_name='question_response_options', to='rest_surveys.SurveyQuestion')),
+                ('question', models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='question_response_options', to='rest_surveys.SurveyQuestion')),
             ],
             options={
                 'ordering': ('inline_ordering_position',),
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 ('inline_ordering_position', models.IntegerField(null=True, blank=True)),
                 ('title', models.TextField()),
                 ('description', models.TextField(null=True, blank=True)),
-                ('survey', models.ForeignKey(related_name='steps', to=settings.REST_SURVEYS_SURVEY_MODEL)),
+                ('survey', models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='steps', to=settings.REST_SURVEYS_SURVEY_MODEL)),
             ],
             options={
                 'ordering': ('inline_ordering_position',),
@@ -82,19 +82,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='surveyquestionresponseoption',
             name='response_option',
-            field=models.ForeignKey(related_name='question_response_options', to='rest_surveys.SurveyResponseOption'),
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='question_response_options', to='rest_surveys.SurveyResponseOption'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='surveyquestionresponse',
             name='response_option',
-            field=models.ForeignKey(blank=True, to='rest_surveys.SurveyResponseOption', null=True),
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE, blank=True, to='rest_surveys.SurveyResponseOption', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='surveyquestionresponse',
             name='survey_response',
-            field=models.ForeignKey(related_name='question_responses', to=settings.REST_SURVEYS_SURVEYRESPONSE_MODEL),
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='question_responses', to=settings.REST_SURVEYS_SURVEYRESPONSE_MODEL),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='surveyquestion',
             name='step',
-            field=models.ForeignKey(related_name='questions', to='rest_surveys.SurveyStep'),
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='questions', to='rest_surveys.SurveyStep'),
             preserve_default=True,
         ),
     ]

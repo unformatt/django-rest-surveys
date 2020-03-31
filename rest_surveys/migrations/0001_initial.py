@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('survey', models.ForeignKey(to=settings.REST_SURVEYS_SURVEY_MODEL)),
+                ('survey', models.ForeignKey(on_delete=models.deletion.CASCADE, to=settings.REST_SURVEYS_SURVEY_MODEL)),
             ],
             options={
                 'swappable': 'REST_SURVEYS_SURVEYRESPONSE_MODEL',
