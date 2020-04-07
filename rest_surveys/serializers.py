@@ -14,6 +14,7 @@ import swapper
 Survey = swapper.load_model('rest_surveys', 'Survey')
 SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
+
 class SurveyQuestionResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyQuestionResponse
@@ -40,8 +41,7 @@ class SurveyQuestionResponseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(error)
 
         # If there's a response option, make sure it's for this question
-        if response_option and response_option not in \
-                                    question.response_options.all():
+        if response_option and response_option not in question.response_options.all():
             error = 'Invalid response_option {0} for question {1}'\
                 .format(response_option.pk, question.pk)
             raise serializers.ValidationError(error)
@@ -123,14 +123,14 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
         # Delete all existing question responses for any questions
         # that correspond to the responses we are updating with.
         updated_questions = {r['question'] for r in question_responses}
-        instance.question_responses.filter(question__in=
-                                           updated_questions).delete()
+        instance.question_responses.filter(question__in=updated_questions).delete()
 
         for question_response in question_responses:
             SurveyQuestionResponse.objects.create(survey_response=instance,
                                                   **question_response)
 
         return instance
+
 
 class SurveyResponseOptionSerializer(serializers.ModelSerializer):
 
@@ -151,7 +151,8 @@ class SurveyQuestionSerializer(serializers.ModelSerializer):
 
     def get_response_options(self, obj):
         question_response_options = obj.question_response_options.order_by(
-                'inline_ordering_position')
+            'inline_ordering_position'
+        )
         response_options = [question_response_option.response_option
                             for question_response_option
                             in question_response_options]

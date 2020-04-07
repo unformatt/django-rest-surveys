@@ -11,6 +11,7 @@ import swapper
 Survey = swapper.load_model('rest_surveys', 'Survey')
 SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
+
 class SurveyResponseViewSet(mixins.RetrieveModelMixin,
                             mixins.CreateModelMixin,
                             mixins.UpdateModelMixin,

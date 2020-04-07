@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.db import models
 
 import swapper
@@ -17,8 +15,8 @@ class AbstractSurvey(models.Model):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
-        return u'{0}'.format(self.title)
+    def __str__(self):
+        return '{0}'.format(self.title)
 
 
 class Survey(AbstractSurvey):
@@ -32,8 +30,8 @@ class SurveyStep(Orderable):
     title = models.TextField(blank=True)
     description = models.TextField(null=True, blank=True)
 
-    def __unicode__(self):
-        return u'{0} ({1}): {2}'.format(
+    def __str__(self):
+        return '{0} ({1}): {2}'.format(
             self.survey, self.inline_ordering_position, self.title)
 
 
@@ -52,18 +50,20 @@ class SurveyQuestion(Orderable):
         (CHOOSE_MULTIPLE, 'Choose Multiple'),
     )
     format = models.PositiveSmallIntegerField(
-            choices=FORMAT_CHOICES)
+        choices=FORMAT_CHOICES
+    )
     response_options = models.ManyToManyField(
-            'rest_surveys.SurveyResponseOption',
-            blank=True,
-            through='rest_surveys.SurveyQuestionResponseOption')
+        'rest_surveys.SurveyResponseOption',
+        blank=True,
+        through='rest_surveys.SurveyQuestionResponseOption'
+    )
 
 
 class SurveyResponseOption(models.Model):
     text = models.TextField()
 
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
+    def __str__(self):
+        return '{0}'.format(self.text)
 
 
 class SurveyQuestionResponseOption(Orderable):
@@ -71,6 +71,7 @@ class SurveyQuestionResponseOption(Orderable):
                                  related_name='question_response_options', on_delete=models.CASCADE)
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
                                         related_name='question_response_options', on_delete=models.CASCADE)
+
 
 class AbstractSurveyResponse(models.Model):
     survey = models.ForeignKey(swapper.get_model_name('rest_surveys', 'Survey'), on_delete=models.CASCADE)
@@ -87,7 +88,8 @@ class SurveyResponse(AbstractSurveyResponse):
 
 class SurveyQuestionResponse(models.Model):
     survey_response = models.ForeignKey(swapper.get_model_name(
-            'rest_surveys', 'SurveyResponse'), related_name='question_responses', on_delete=models.CASCADE)
+        'rest_surveys', 'SurveyResponse'
+    ), related_name='question_responses', on_delete=models.CASCADE)
     question = models.ForeignKey('rest_surveys.SurveyQuestion', on_delete=models.CASCADE)
     response_option = models.ForeignKey('rest_surveys.SurveyResponseOption',
                                         null=True, blank=True, on_delete=models.CASCADE)

@@ -12,6 +12,7 @@ from rest_surveys.utils import admin_edit_link
 Survey = swapper.load_model('rest_surveys', 'Survey')
 SurveyResponse = swapper.load_model('rest_surveys', 'SurveyResponse')
 
+
 class SurveyStepInline(OrderableStackedInline):
     model = SurveyStep
     extra = 0

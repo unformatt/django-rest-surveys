@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-import django, importlib
+import django
+import importlib
 from django.urls import reverse
 
 
@@ -13,6 +14,7 @@ def remote_field(field):
     if django.VERSION >= (1, 9):
         return field.remote_field
     return field.rel
+
 
 def get_field_names(model, field_types=None):
     """
@@ -32,6 +34,7 @@ def get_field_names(model, field_types=None):
         if not (getattr(remote_field(f), 'parent_link', False))
     ]
 
+
 def to_class(class_str):
     if not class_str:
         return None
@@ -41,7 +44,10 @@ def to_class(class_str):
     module = importlib.import_module(module_path)
     return getattr(module, class_name, None)
 
+
 def admin_edit_link(obj):
-  url = reverse('admin:{0}_{1}_change'.format(obj._meta.app_label,
-      obj._meta.model_name),  args=[obj.pk])
-  return u'<a href="{0}">{1}</a>'.format(url, obj)
+    url = reverse('admin:{0}_{1}_change'.format(
+        obj._meta.app_label,
+        obj._meta.model_name
+    ), args=[obj.pk])
+    return '<a href="{0}">{1}</a>'.format(url, obj)

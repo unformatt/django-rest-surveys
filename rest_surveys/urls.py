@@ -1,6 +1,5 @@
-from __future__ import unicode_literals
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from rest_framework_bulk.routes import BulkRouter
 from rest_surveys.views import (
     SurveyViewSet,
@@ -18,10 +17,10 @@ slashless_router = BulkRouter(trailing_slash=False)
 slashless_router.registry = router.registry[:]
 
 urlpatterns = [
-    url(r'^{api_path}'.format(
-                api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
+    re_path(r'^{api_path}'.format(
+        api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
         include(router.urls)),
-    url(r'^{api_path}'.format(
-                api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
+    re_path(r'^{api_path}'.format(
+        api_path=getattr(settings, 'REST_SURVEYS_API_PATH', 'api/')),
         include(slashless_router.urls)),
 ]
